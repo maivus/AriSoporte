@@ -65,14 +65,20 @@ app.post('/', async (req, res) => {
   }
 });
 
-// Función para enviar mensaje
+// Función para enviar mensaje MEJORADA PARA DEBUGGING
 async function sendMessage(to, text) {
   try {
+    const url = `https://graph.facebook.com/v19.0/${process.env.PHONE_NUMBER_ID}/messages`;
+    
+    // Imprimimos los datos antes de enviar para verificar
+    console.log(`Intento de envío a: ${to}`);
+    console.log(`Usando ID de Teléfono: ${process.env.PHONE_NUMBER_ID}`);
+    
     const response = await axios({
       method: 'POST',
-      url: `https://graph.facebook.com/v19.0/${PHONE_NUMBER_ID}/messages`,
+      url: url,
       headers: {
-        'Authorization': `Bearer ${WHATSAPP_TOKEN}`,
+        'Authorization': `Bearer ${process.env.WHATSAPP_TOKEN}`,
         'Content-Type': 'application/json',
       },
       data: {
@@ -81,9 +87,21 @@ async function sendMessage(to, text) {
         text: { body: text },
       },
     });
-    console.log('Respuesta enviada. ID:', response.data.messages[0].id);
+    console.log('EXITO: Respuesta enviada. ID:', response.data.messages[0].id);
   } catch (error) {
-    console.error('Fallo al enviar mensaje:', error.response ? error.response.data : error.message);
+    // AQUÍ ESTÁ LA CLAVE: Imprimir el error detallado de Facebook
+    console.error('FALLO EL ENVIO:');
+    if (error.response) {
+      // El servidor respondió con un código de estado fuera del rango 2xx
+      console.error('Data:', JSON.stringify(error.response.data, null, 2));
+      console.error('Status:', error.response.status);
+    } else if (error.request) {
+      // La petición se hizo pero no hubo respuesta
+      console.error('No hubo respuesta del servidor de Meta');
+    } else {
+      // Algo pasó al configurar la petición
+      console.error('Error de configuración:', error.message);
+    }
   }
 }
 
