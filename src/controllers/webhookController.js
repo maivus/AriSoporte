@@ -35,13 +35,17 @@ const receiveWebhook = async (req, res) => {
               const messageBody = message.text.body;
 
               console.log(`Mensaje de ${from}: ${messageBody}`);
-              // --- NUEVA LÓGICA DE DECISIÓN ---
+              console.log(`Analizando mensaje de ${from}: "${messageBody}"`); //
 
-              // Usamos Regex para detectar si el mensaje contiene Emojis
-              // \p{Emoji} es compatible con Node.js moderno
-              const esSoloEmoji= /^[\p{Emoji}\s]+$/u.test(messageBody);
+              // EXPRESIÓN REGULAR BASADA EN RANGOS (Más robusta)
+              // Detecta: Símbolos comunes, Dingbats y los planos principales de Emojis (d83c, d83d, d83e)
+              const regexEmoji = /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/;
+              
+              const tieneEmoji = regexEmoji.test(messageBody);
 
-              if (esSoloEmoji) {
+              console.log(`¿Tiene emoji?: ${tieneEmoji}`); // LOG PARA VERIFICAR
+
+              if (tieneEmoji) {
                 // Opción A: Si enviaron un emoji, respondemos con el pulgar
                 await whatsappService.sendMessage(from, '👍🏽');
               } else {
