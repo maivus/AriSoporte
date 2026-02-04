@@ -1,0 +1,17 @@
+{
+  "name": "whatsapp-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.6.0",       <-- ASEGÚRATE DE QUE ESTA COMA ESTÉ AQUÍ
+    "express": "^4.18.2",    <-- ASEGÚRATE DE QUE ESTA COMA ESTÉ AQUÍ
+    "dotenv": "^16.3.1"      <-- AGREGA ESTA LÍNEA (la última no lleva coma)
+  }
+}
