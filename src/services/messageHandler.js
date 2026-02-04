@@ -1,6 +1,6 @@
 const whatsappService = require('./whatsappService');
 
-const handleIncomingMessage = async (message) => {
+const handleIncomingMessage = async (message, senderName) => {
   // Extraemos datos básicos
   const messageId = message.id;
   const from = message.from;
@@ -12,6 +12,9 @@ const handleIncomingMessage = async (message) => {
     // 2. Solo procesamos mensajes de texto por ahora
     if (message.type === 'text') {
       const messageBody = message.text.body;
+
+      // Log para ver que capturamos bien el nombre
+      console.log(`Mensaje de ${senderName} (${from}): ${messageBody}`);
       console.log(`Procesando mensaje de ${from}: ${messageBody}`);
 
       // --- LÓGICA DE DECISIÓN (Tu código de emojis) ---
@@ -24,7 +27,7 @@ const handleIncomingMessage = async (message) => {
         await whatsappService.sendMessage(from, '👍🏽', messageId);
       } else {
         // Respuesta B: Texto Default
-        const respuestaDefault = "Gracias por escribirme! Recuerda que el departamento de sistemas esta trabajando muy duro para ponerme en funcionamiento lo antes posible. Nos vemos pronto!!! Aro somos todos ❤️";
+        const respuestaDefault = `Gracias por escribirme ${senderName}! Recuerda que el departamento de sistemas esta trabajando muy duro para ponerme en funcionamiento lo antes posible. Nos vemos pronto!!! Aro somos todos ❤️`;
         await whatsappService.sendMessage(from, respuestaDefault, messageId);
       }
     } else {

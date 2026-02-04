@@ -25,12 +25,20 @@ const receiveWebhook = async (req, res) => {
         for (const change of entry.changes) {
           const value = change.value;
 
+          // 1. EXTRAER INFORMACIÓN DEL CONTACTO
+          // El array 'contacts' suele traer el nombre de perfil del usuario (profile.name)
+          let senderName = 'Usuario'; // Valor por defecto
+          if (value.contacts && value.contacts.length > 0) {
+            senderName = value.contacts[0].profile.name;
+          }
+
           if (value.messages && value.messages.length > 0) {
             const message = value.messages[0];
-
+      
             // AQUÍ ESTÁ LA MAGIA:
             // El controlador ya no piensa, solo delega el trabajo al Handler
-            await messageHandler.handleIncomingMessage(message);
+            // Le enviamos 'message' Y TAMBIÉN 'senderName'
+            await messageHandler.handleIncomingMessage(message,senderName);
           }
         }
       }
