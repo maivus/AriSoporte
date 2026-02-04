@@ -1,21 +1,19 @@
-// Import Express.js y Axios
+require('dotenv').config(); // Carga variables si estás en local, en Render no hará daño.
 const express = require('express');
-const axios = require('axios'); // <--- NUEVO: Para enviar mensajes
+const axios = require('axios');
 
-// Create an Express app
 const app = express();
-
-// Middleware to parse JSON bodies
 app.use(express.json());
 
-// Configuraciones (Idealmente deberían ir en un archivo .env)
+// RENDER IMPORTANTE: Render asigna un puerto automáticamente en process.env.PORT
 const port = process.env.PORT || 3000;
-const verifyToken = process.env.VERIFY_TOKEN;
-// Agrega estas variables en tu entorno o ponlas aquí temporalmente
-const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN; 
-const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID; 
 
-// Route for GET requests (Verificación del Webhook)
+// Variables de entorno
+const verifyToken = process.env.VERIFY_TOKEN;
+const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN;
+const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
+
+// Ruta GET para verificación del Webhook
 app.get('/', (req, res) => {
   const { 'hub.mode': mode, 'hub.challenge': challenge, 'hub.verify_token': token } = req.query;
 
@@ -23,50 +21,54 @@ app.get('/', (req, res) => {
     console.log('WEBHOOK VERIFIED');
     res.status(200).send(challenge);
   } else {
-    res.status(403).end();
+    res.sendStatus(403);
   }
 });
 
-// Route for POST requests (Recibir mensajes)
-app.post('/', async (req, res) => { // <--- Convertimos a async para usar await
+// Ruta POST para recibir y responder mensajes
+app.post('/', async (req, res) => {
   const body = req.body;
 
-  // 1. Verificar si es un evento de WhatsApp
-  if (body.object === 'whatsapp_business_account') {
-    
-    // Iterar sobre las entradas (entries)
-    for (const entry of body.entry) {
-      // Iterar sobre los cambios (changes)
-      for (const change of entry.changes) {
-        const value = change.value;
+  try {
+    if (body.object === 'whatsapp_business_account') {
+      // Respondemos 200 OK a Meta inmediatamente para evitar que reintenten el envío
+      // (Opcional: puedes mover esto al final si prefieres esperar a que se envíe tu respuesta)
+      // En producción es mejor responder rápido:
+      res.status(200).send('EVENT_RECEIVED');
 
-        // 2. Verificar si hay mensajes en el evento
-        if (value.messages && value.messages.length > 0) {
-          const message = value.messages[0];
-          
-          // Solo respondemos si es un mensaje de texto
-          if (message.type === 'text') {
-            const from = message.from; // Número del remitente
-            const messageBody = message.text.body; // Texto del mensaje
+      for (const entry of body.entry) {
+        for (const change of entry.changes) {
+          const value = change.value;
 
-            console.log(`Mensaje recibido de ${from}: ${messageBody}`);
-
-            // 3. Enviar la respuesta (Echo)
-            await sendMessage(from, `Dijiste: ${messageBody}`);
+          if (value.messages && value.messages.length > 0) {
+            const message = value.messages[0];
+            
+            // Verificamos que sea texto para evitar errores con audios/imágenes
+            if (message.type === 'text') {
+              const from = message.from;
+              const messageBody = message.text.body;
+              
+              console.log(`Mensaje recibido de ${from}: ${messageBody}`);
+              
+              // Enviamos la respuesta
+              await sendMessage(from, `Recibido en Render: ${messageBody}`);
+            }
           }
         }
       }
+    } else {
+      res.sendStatus(404);
     }
-    res.status(200).send('EVENT_RECEIVED');
-  } else {
-    res.status(404).end();
+  } catch (error) {
+    console.error('Error procesando el webhook:', error);
+    // Nota: Si ya respondiste con res.status(200), no puedes volver a enviar una respuesta aquí.
   }
 });
 
-// Función para enviar mensajes a la API de WhatsApp
+// Función para enviar mensaje
 async function sendMessage(to, text) {
   try {
-    await axios({
+    const response = await axios({
       method: 'POST',
       url: `https://graph.facebook.com/v19.0/${PHONE_NUMBER_ID}/messages`,
       headers: {
@@ -77,16 +79,14 @@ async function sendMessage(to, text) {
         messaging_product: 'whatsapp',
         to: to,
         text: { body: text },
-        // context: { message_id: messageId } // Opcional: para citar el mensaje original
       },
     });
-    console.log('Mensaje de respuesta enviado exitosamente');
+    console.log('Respuesta enviada. ID:', response.data.messages[0].id);
   } catch (error) {
-    console.error('Error enviando mensaje:', error.response ? error.response.data : error.message);
+    console.error('Fallo al enviar mensaje:', error.response ? error.response.data : error.message);
   }
 }
 
-// Start the server
 app.listen(port, () => {
-  console.log(`\nListening on port ${port}\n`);
+  console.log(`Servidor corriendo en el puerto ${port}`);
 });
