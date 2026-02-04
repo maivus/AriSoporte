@@ -51,7 +51,7 @@ app.post('/', async (req, res) => {
               console.log(`Mensaje recibido de ${from}: ${messageBody}`);
               
               // Enviamos la respuesta
-              await sendMessage(from, `Recibido en Render: ${messageBody}`);
+              await sendMessage(from, `Tu mensaje: ${messageBody}`);
             }
           }
         }
