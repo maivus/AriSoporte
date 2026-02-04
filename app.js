@@ -1,3 +1,4 @@
+// PRUEBA PARA VERIFICAR CAMBIOS
 require('dotenv').config(); // Carga variables si estás en local, en Render no hará daño.
 const express = require('express');
 const axios = require('axios');
