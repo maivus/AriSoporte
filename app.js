@@ -46,12 +46,16 @@ app.post('/', async (req, res) => {
             // Verificamos que sea texto para evitar errores con audios/imágenes
             if (message.type === 'text') {
               const from = message.from;
+              // No es necesario leer el body del mensaje si no lo vas a repetir, 
+              // pero lo dejamos por si quieres verlo en consola:
               const messageBody = message.text.body;
-              
               console.log(`Mensaje recibido de ${from}: ${messageBody}`);
               
+              // TU NUEVO MENSAJE AQUÍ:
+              const nuevoMensaje = "Gracias por escribirme! Recuerda que el departamento de sistemas esta trabajando muy duro para ponerme en funcionamiento lo antes posible. Nos vemos pronto!!! Aro somos todos ❤️";
+              
               // Enviamos la respuesta
-              await sendMessage(from, `Tu mensaje: ${messageBody}`);
+              await sendMessage(from, nuevoMensaje);
             }
           }
         }
