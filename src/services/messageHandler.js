@@ -33,9 +33,9 @@ class MessageHandler {
 
   isGreeting(message) {
     // Lista de saludos
-    const greetings = ["hola", "buenas", "buenas tardes", "buenas noches", "hi", "hello"];
-    // Verificamos si el mensaje ESTÁ en la lista exacta
-    return greetings.includes(message);
+    const greetings = ["hola", "buenas", "buenas tardes", "buenos dias", "buenas noches", "hi", "hello"];
+    // Verificamos si el mensaje ESTÁ en la lista exacta. la funcion some evalua que la cadena de texto contenga alguna de esas palabras
+    return greetings.some(greeting => message.includes(greeting));
   }
 
   async sendWelcomeMessage(to, messageId, senderName) {
