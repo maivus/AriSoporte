@@ -46,7 +46,7 @@ class MessageHandler {
   }
 
   async sendWelcomeMenu(to){
-    const menuMessage = "Por favor selecciona una opcion."
+    const menuMessage = "Por favor selecciona una opcion.";
     const buttons = [
       {
         type: 'reply', reply: { id: 'option_1', title: 'Soporte' }
