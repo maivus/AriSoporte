@@ -48,7 +48,7 @@ const markAsRead = async (messageId) => {
 };
 
 //3. Agregamos la funcion para poder enviar botones
-const sendInteractiveButtons = async (to, BodyText, buttons) => {
+const sendInteractiveButtons = async (to, bodyText, buttons) => {
   try {
     await axios({
       method: 'POST',
@@ -63,17 +63,18 @@ const sendInteractiveButtons = async (to, BodyText, buttons) => {
         type: 'interactive',
         interactive: {
           type: 'button',
-          body: {text: BodyText},
-          actions: {
-            buttons: buttons
+          body: { text: bodyText },
+          action: {
+            buttons: buttons // Aquí van los botones que definiremos en el handler
           }
         }
       },
     });
+    console.log(`Menú interactivo enviado a ${to}`);
   } catch (error) {
-    console.error(error);
+    console.error('Error enviando botones:', error.response ? error.response.data : error.message);
   }
-}
+};
 
 module.exports = {
   sendMessage,
