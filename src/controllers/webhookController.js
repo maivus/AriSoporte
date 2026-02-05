@@ -29,7 +29,11 @@ const receiveWebhook = async (req, res) => {
           // El array 'contacts' suele traer el nombre de perfil del usuario (profile.name)
           let senderName = 'Usuario'; // Valor por defecto
           if (value.contacts && value.contacts.length > 0) {
-            senderName = value.contacts[0].profile.name;
+              senderName = value.contacts[0].profile.name;
+              // LÓGICA DE PRIMER NOMBRE:
+              // Dividimos por espacios y tomamos la primera parte
+              // Ejemplo: "Jorge Pérez" -> ["Jorge", "Pérez"] -> "Jorge"
+              senderName = fullName.split(" ")[0];
           }
 
           if (value.messages && value.messages.length > 0) {
