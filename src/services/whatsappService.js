@@ -47,7 +47,36 @@ const markAsRead = async (messageId) => {
   }
 };
 
+//3. Agregamos la funcion para poder enviar botones
+const sendInteractiveButtons = async (to, BodyText, buttons) => {
+  try {
+    await axios({
+      method: 'POST',
+      url: config.META_API_URL,
+      headers: {
+        'Authorization': `Bearer ${config.WHATSAPP_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      data: {
+        messaging_product: 'whatsapp',
+        to: to,
+        type: 'interactive',
+        interactive: {
+          type: 'button',
+          body: {text: BodyText},
+          actions: {
+            buttons: buttons
+          }
+        }
+      },
+    });
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 module.exports = {
   sendMessage,
-  markAsRead
+  markAsRead,
+  sendInteractiveButtons
 };

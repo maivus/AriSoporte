@@ -23,6 +23,7 @@ class MessageHandler {
       // 3. Lógica de Saludo
       if (this.isGreeting(inComingMessage)) {
         await this.sendWelcomeMessage(from, messageId, senderName);
+        await this.sendWelcomeMenu(from);
       } else {
         // Respuesta Eco (Si no es saludo)
         const response = `Echo: ${messageBody}`;
@@ -40,8 +41,25 @@ class MessageHandler {
 
   async sendWelcomeMessage(to, messageId, senderName) {
     // CORRECCIÓN IMPORTANTE: Usamos comillas invertidas (backticks) ` ` para que funcione ${senderName}
-    const welcomeMessage = `Hola ${senderName}, gracias por ponerte en contacto conmigo. ¿En qué te puedo ayudar? Estoy lista para ayudarte en cualquiera de tus necesidades.`;
+    const welcomeMessage = `¡Hola ${senderName}! Soy Ari, gracias por ponerte en contacto conmigo. ¿En qué te puedo ayudar?`;
     await whatsappService.sendMessage(to, welcomeMessage, messageId);
+  }
+
+  async sendWelcomeMenu(to){
+    const menuMessage = "Por favor selecciona una opcion."
+    const buttons = [
+      {
+        type: 'reply', reply: { id: 'option_1', title: 'Soporte' }
+      },
+      {
+        type: 'reply', reply: { id: 'option_2', title: 'Informacion' }
+      },
+      {
+        type: 'reply', reply: { id: 'option_3', title: 'Otros' }
+      },
+    ];
+
+    await whatsappService.sendInteractiveButtons(to, menuMessage, buttons);
   }
 }
 
