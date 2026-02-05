@@ -1,6 +1,6 @@
 const whatsappService = require('./whatsappService');
 
-class messageHandler{
+class MessageHandler {
   async handleIncomingMessage(message, senderName){
     // Extraemos datos básicos
     const messageId = message.id;
@@ -41,5 +41,5 @@ class messageHandler{
 }
 
 module.exports = {
-  messageHandler
+  MessageHandler
 };
