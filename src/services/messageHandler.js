@@ -40,6 +40,7 @@ class MessageHandler {
   }
 }
 
-module.exports = {
-  MessageHandler
-};
+export default new MessageHandler();
+// module.exports = {
+//   MessageHandler
+// };
