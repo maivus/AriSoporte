@@ -24,7 +24,7 @@ class MessageHandler {
         await this.sendWelcomeMessage(from, messageId, senderName);
         await this.sendWelcomeMenu(from);
       } else {
-        const response = `Echo: ${messageBody}`;
+        const response = `¡Hola! 👋 Soy Ari, tu asistente virtual. Por el momento no reconocí tu mensaje. Para ver mis opciones y ayudarte mejor, por favor inicia la conversación con un saludo (por ejemplo: Hola, Buenas, Buenos días, Buenas tardes, Buenas noches.).`;
         await whatsappService.sendMessage(from, response, messageId);
       }
     } 
@@ -46,7 +46,7 @@ class MessageHandler {
   }
 
   isGreeting(message) {
-    const greetings = ["hola", "buenas", "buenas noches", "buenas tardes"];
+    const greetings = ["hola", "buenas", "buenas noches", "buenas tardes", "buenos dias", "holis","que tal"," buenaas!"];
     return greetings.some(greeting => message.includes(greeting));
   }
 
