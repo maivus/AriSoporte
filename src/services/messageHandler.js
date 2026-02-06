@@ -61,14 +61,14 @@ class MessageHandler {
         type: 'reply',
         reply: {
           id: 'option_1', 
-          title: 'Agendar Cita 📅'
+          title: 'Soporte 📝'
         }
       },
       {
         type: 'reply',
         reply: {
           id: 'option_2',
-          title: 'Ver Precios 💰'
+          title: 'Informacion 💡'
         }
       },
       {
@@ -88,10 +88,10 @@ class MessageHandler {
 
     switch (buttonId) {
       case 'option_1':
-        responseText = "¡Perfecto! Para agendar una cita, por favor visita nuestro calendario aquí: www.tu-sitio-web.com/agenda";
+        responseText = "¡Perfecto! Selecciona alguna de las opciones de soporte:";
         break;
       case 'option_2':
-        responseText = "Nuestros planes comienzan desde $10/mes. ¿Te gustaría recibir el PDF con el catálogo completo?";
+        responseText = "¿Que tipo de informacion necesitas en este momento?";
         break;
       case 'option_3':
         responseText = "Entendido. Un asesor humano revisará tu chat pronto. Por favor espera unos minutos. ⏳";
