@@ -8,7 +8,7 @@ class MessageHandler {
       await whatsappService.markAsRead(message.id);
     }
 
-    // 2. Verificar si es texto
+    // CASO A VERIFICAR SI ES TEXTO PARA RESPUESTA
     if (message?.type === 'text') {
       const messageBody = message.text.body;
       const from = message.from;
@@ -29,10 +29,20 @@ class MessageHandler {
         const response = `Echo: ${messageBody}`;
         await whatsappService.sendMessage(from, response, messageId);
       }
+    // CASO B VERIFICAR SI ES INTERACTIVO PARA RESPUESTA  
     } else if(message?.type === 'interactive') {
-      const option = message?.interactive?.button_repley?.title.toLowerCase().trim();
-      await this.handleMenuOption(message.from, option);
-      await whatsappService.markAsRead(message.id);
+      const interactiveObject = message.interactive;
+      // Verificamos si es una respuesta de botón ('button_reply')
+      if (interactiveObject.type === 'button_reply') {
+        const buttonId = interactiveObject.button_reply.id;
+        const buttonTitle = interactiveObject.button_reply.title;
+        console.log(`Usuario presionó botón: ${buttonTitle} (ID: ${buttonId})`);
+
+        // Llamamos a la lógica específica de botones
+        await this.handleButtonAction(buttonId, from, messageId);
+        await whatsappService.markAsRead(message.id);
+      }
+      
     }
   }
 
@@ -66,22 +76,28 @@ class MessageHandler {
     await whatsappService.sendInteractiveButtons(to, menuMessage, buttons);
   }
 
-  async handleMenuOption(to,option) {
-    let response;
-    switch (option){
-      case 'soporte':
-        response = "Tipo de Soporte"
+  async handleButtonAction(buttonId, to, messageId) {
+    let responsetext = '';
+
+    switch (buttonId) {
+      case 'option_1':
+        responseText = "¡Entendido. Un asesor humano revisará tu chat pronto. Por favor espera unos minutos. ⏳";
         break;
-      case 'informacion':
-        response = "Que tipo de informacion";
+      
+      case 'option_2':
+        responseText = "Este es el tipo de informacion que hay disponible:";
         break;
-      case 'otros':
-        response = "Que otro tipo de ayuda necesitas"
+      
+      case 'option_3':
+        responseText = "Estan son las otras opciones que se encuentran disponibles:";
         break;
-        default:
-          response = "Lo siento, no entendi tu seleccion. Por favor, elige una de las opciones."    
+        
+      default:
+        responseText = "Opción no reconocida, por favor intenta de nuevo.";
+        break;
     }
-    await whatsappService.sendMessage(to,response);
+    // Enviamos la respuesta seleccionada
+    await whatsappService.sendMessage(to, responseText, messageId);
   }
 }
 
