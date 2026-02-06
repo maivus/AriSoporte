@@ -29,6 +29,10 @@ class MessageHandler {
         const response = `Echo: ${messageBody}`;
         await whatsappService.sendMessage(from, response, messageId);
       }
+    } else if(message?.type === 'interactive') {
+      const option = message?.interactive?.button_repley?.title.toLowerCase().trim();
+      await this.handleMenuOption(message.from, option);
+      await whatsappService.markAsRead(message.id);
     }
   }
 
@@ -60,6 +64,24 @@ class MessageHandler {
     ];
 
     await whatsappService.sendInteractiveButtons(to, menuMessage, buttons);
+  }
+
+  async handleMenuOption(to,option) {
+    let response;
+    switch (option){
+      case 'soporte':
+        response = "Tipo de Soporte"
+        break;
+      case 'informacion':
+        response = "Que tipo de informacion";
+        break;
+      case 'otros':
+        response = "Que otro tipo de ayuda necesitas"
+        break;
+        default:
+          response = "Lo siento, no entendi tu seleccion. Por favor, elige una de las opciones."    
+    }
+    await whatsappService.sendMessage(to,response);
   }
 }
 
