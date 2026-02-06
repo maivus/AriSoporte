@@ -3,6 +3,10 @@ const whatsappService = require('./whatsappService');
 class MessageHandler {
   
   async handleIncomingMessage(message, senderName) {
+    // Declaramos 'from' y 'messageId' AL PRINCIPIO, para que sirvan tanto para texto como para botones
+    const from = message.from;
+    const messageId = message.id;
+    
     // 1. Marcar como leído inmediatamente
     if (message.id) {
       await whatsappService.markAsRead(message.id);
@@ -11,8 +15,6 @@ class MessageHandler {
     // CASO A VERIFICAR SI ES TEXTO PARA RESPUESTA
     if (message?.type === 'text') {
       const messageBody = message.text.body;
-      const from = message.from;
-      const messageId = message.id;
 
       // Log corregido (ahora messageBody ya existe)
       console.log(`Mensaje de ${senderName} (${from}): ${messageBody}`);
