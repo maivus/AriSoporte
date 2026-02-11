@@ -46,7 +46,7 @@ class MessageHandler {
   }
 
   isGreeting(message) {
-    const greetings = ["hola", "buenas", "buenas noches", "buenas tardes", "buenos dias", "holis","que tal"," buenaas!", "holis"];
+    const greetings = ["hola","buenas","buenas noches","buenas tardes","buenos dias","holis","que tal","buenaas!","holis"];
     return greetings.some(greeting => message.includes(greeting));
   }
 
