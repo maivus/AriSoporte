@@ -5,7 +5,7 @@ const userSessions = {};
 
 class MessageHandler {
   
-  async handleIncomingMessage(message, senderName) {
+ async handleIncomingMessage(message, senderName) {
     const from = message.from;
     const messageId = message.id;
 
@@ -13,10 +13,11 @@ class MessageHandler {
       await whatsappService.markAsRead(messageId);
     }
 
-    // --- LÓGICA DE FLUJO DE REGISTRO (TEXTO) ---
+    // --- LÓGICA DE FLUJO DE REGISTRO CON CONFIRMACIONES ---
     if (message?.type === 'text' && userSessions[from]) {
-      await this.handleRegistrationFlow(from, message.text.body, messageId);
-      return; // Salimos para no procesar el texto como un saludo
+        // Si hay una sesión activa, derivamos a la validación de texto
+        await this.handleRegistrationFlow(from, message.text.body, messageId);
+        return; 
     }
 
     // CASO A: Es un mensaje de TEXTO (Saludo o comandos)
@@ -27,8 +28,6 @@ class MessageHandler {
       if (this.isGreeting(inComingMessage)) {
         await this.sendWelcomeMessage(from, messageId, senderName);
         await this.sendWelcomeMenu(from);
-      } else if (inComingMessage.includes('imagen')) {
-        await this.sendMedia(from, messageId);
       } else {
         const response = `¡Hola! 👋 Soy Ari. Por el momento no reconocí tu mensaje. Por favor inicia con un saludo para ayudarte.`;
         await whatsappService.sendMessage(from, response, messageId);
@@ -48,44 +47,60 @@ class MessageHandler {
   // Manejador de los pasos del formulario (Médicos/Farmacias)
   async handleRegistrationFlow(to, text, messageId) {
     const session = userSessions[to];
+    const cleanText = text.trim();
+
+    // Si el usuario está en un paso de confirmación, ignoramos nuevos textos hasta que use los botones
+    if (session.step.includes('CONFIRMING')) {
+      await whatsappService.sendMessage(to, "Por favor, usa los botones de arriba para confirmar o corregir la información. 👆", messageId);
+      return;
+    }
 
     switch (session.step) {
       case 'AWAITING_NAME':
-        session.data.nombre = text;
-        if (session.type === 'medico') {
-          session.step = 'AWAITING_SPECIALTY';
-          await whatsappService.sendMessage(to, "Entendido. ¿Cuál es la especialidad del médico? 🎓", messageId);
-        } else {
-          session.step = 'AWAITING_ADDRESS';
-          await whatsappService.sendMessage(to, "Gracias. Ahora, por favor ingresa la dirección de la farmacia: 📍", messageId);
+        if (!/^[a-zA-ZÀ-ÿ\s]{3,}$/.test(cleanText)) {
+          await whatsappService.sendMessage(to, "❌ Nombre no válido. Por favor usa solo letras (mínimo 3).", messageId);
+          return;
         }
+        session.tempData = cleanText;
+        session.step = 'CONFIRMING_NAME';
+        await this.askConfirmation(to, `¿Confirmas que el nombre es:\n*${cleanText}*?`, 'name');
         break;
 
       case 'AWAITING_SPECIALTY':
-        session.data.especialidad = text;
-        session.step = 'AWAITING_ADDRESS';
-        await whatsappService.sendMessage(to, "Excelente. Finalmente, ingresa la dirección del consultorio: 📍", messageId);
+        if (cleanText.length < 3) {
+          await whatsappService.sendMessage(to, "❌ Por favor, indica una especialidad válida.", messageId);
+          return;
+        }
+        session.tempData = cleanText;
+        session.step = 'CONFIRMING_SPECIALTY';
+        await this.askConfirmation(to, `¿La especialidad es:\n*${cleanText}*?`, 'specialty');
         break;
 
       case 'AWAITING_ADDRESS':
-        session.data.direccion = text;
-        
-        // 1. Mensaje de éxito
-        const finalResponse = "¡Gracias! Toda la información ha sido recolectada. El equipo de sistemas se contactará contigo cuando el registro esté creado en CityTroops. ✅";
-        await whatsappService.sendMessage(to, finalResponse, messageId);
-        
-        // 2. IMPORTANTE: Enviamos el menú de nuevo inmediatamente
-        // Usamos 'await' para asegurar que el orden sea el correcto
-        await this.sendWelcomeMenu(to);
-        
-        // 3. Limpiamos la sesión para que el bot deje de esperar datos de registro
-        delete userSessions[to]; 
+        // Validación flexible: Permite letras, números y caracteres especiales comunes en direcciones (#, ., -, ,)
+        if (cleanText.length < 5) {
+          await whatsappService.sendMessage(to, "❌ La dirección es muy corta. Por favor sé más específico.", messageId);
+          return;
+        }
+        session.tempData = cleanText;
+        session.step = 'CONFIRMING_ADDRESS';
+        await this.askConfirmation(to, `¿Confirmas la dirección:\n*${cleanText}*?`, 'address');
         break;
     }
   }
 
+  async askConfirmation(to, bodyText, type) {
+    const buttons = [
+      { type: 'reply', reply: { id: `yes_${type}`, title: 'Sí, es correcto ✅' } },
+      { type: 'reply', reply: { id: `no_${type}`, title: 'No, corregir ✍️' } }
+    ];
+    await whatsappService.sendInteractiveButtons(to, bodyText, buttons);
+  }
+
+
+
   async handleButtonAction(buttonId, to, messageId) {
-    let responseText = '';
+    const session = userSessions[to];
 
     switch (buttonId) {
       case 'option_1':
@@ -94,30 +109,63 @@ class MessageHandler {
           { type: 'reply', reply: { id: 'reg_farmacia', title: 'Farmacia 🏥' } }
         ];
         await whatsappService.sendInteractiveButtons(to, "¡Perfecto! ¿Qué deseas registrar hoy?", registrationButtons);
-        return; // Retornamos para evitar el sendMessage vacío al final
+        break;
 
       case 'reg_medico':
         userSessions[to] = { step: 'AWAITING_NAME', type: 'medico', data: {} };
-        responseText = "Iniciemos el registro. ¿Cuál es el nombre completo del médico? 📝";
+        await whatsappService.sendMessage(to, "Iniciemos. ¿Cuál es el nombre completo del médico? 📝");
         break;
 
       case 'reg_farmacia':
         userSessions[to] = { step: 'AWAITING_NAME', type: 'farmacia', data: {} };
-        responseText = "Iniciemos el registro. ¿Cuál es el nombre de la farmacia? 📝";
+        await whatsappService.sendMessage(to, "Iniciemos. ¿Cuál es el nombre de la farmacia? 📝");
         break;
 
-      case 'option_2':
-        responseText = "¿Que tipo de informacion necesitas en este momento?";
+      // --- MANEJO DE CONFIRMACIONES ---
+      
+      // Confirmación de Nombre
+      case 'yes_name':
+        session.data.nombre = session.tempData;
+        if (session.type === 'medico') {
+          session.step = 'AWAITING_SPECIALTY';
+          await whatsappService.sendMessage(to, "¡Excelente! Ahora, ¿cuál es su especialidad? 🎓");
+        } else {
+          session.step = 'AWAITING_ADDRESS';
+          await whatsappService.sendMessage(to, "¡Excelente! Ahora, ingresa la dirección de la farmacia: 📍");
+        }
         break;
-      case 'option_3':
-        responseText = "Entendido. Un asesor humano revisará tu chat pronto. Por favor espera unos minutos. ⏳";
+
+      // Confirmación de Especialidad
+      case 'yes_specialty':
+        session.data.especialidad = session.tempData;
+        session.step = 'AWAITING_ADDRESS';
+        await whatsappService.sendMessage(to, "Entendido. Finalmente, ingresa la dirección del consultorio: 📍");
         break;
-      default:
-        responseText = "Opción no reconocida, por favor intenta de nuevo.";
+
+      // Confirmación de Dirección (FINAL)
+      case 'yes_address':
+        session.data.direccion = session.tempData;
+        await whatsappService.sendMessage(to, "¡Gracias! Toda la información ha sido recolectada. El equipo de sistemas se contactará contigo cuando el registro esté creado en AROPHARMA. ✅");
+        await this.sendWelcomeMenu(to);
+        delete userSessions[to];
         break;
+
+      // Casos de "No, corregir"
+      case 'no_name':
+        session.step = 'AWAITING_NAME';
+        await whatsappService.sendMessage(to, "De acuerdo. Escribe el nombre nuevamente: 📝");
+        break;
+      case 'no_specialty':
+        session.step = 'AWAITING_SPECIALTY';
+        await whatsappService.sendMessage(to, "De acuerdo. Escribe la especialidad nuevamente: 🎓");
+        break;
+      case 'no_address':
+        session.step = 'AWAITING_ADDRESS';
+        await whatsappService.sendMessage(to, "De acuerdo. Escribe la dirección nuevamente: 📍");
+        break;
+
+      // ... Resto de opciones del menú inicial (option_2, option_3)
     }
-
-    await whatsappService.sendMessage(to, responseText, messageId);
   }
 
   isGreeting(message) {
