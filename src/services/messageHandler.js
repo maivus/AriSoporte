@@ -124,7 +124,7 @@ class MessageHandler {
 
   async sendWelcomeMenu(to) {
     const menuButtons = [
-      { type: 'reply', reply: { id: 'option_1', title: 'Creacion Medicos/Farmacias📝' } },
+      { type: 'reply', reply: { id: 'option_1', title: 'Crear Médico/Farmacia' } },
       { type: 'reply', reply: { id: 'option_2', title: 'Informacion 💡' } },
       { type: 'reply', reply: { id: 'option_3', title: 'Hablar con Humano 🙋' } }
     ];
