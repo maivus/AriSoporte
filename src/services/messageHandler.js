@@ -124,10 +124,29 @@ class MessageHandler {
 
   async sendWelcomeMenu(to) {
     const menuButtons = [
-      { type: 'reply', reply: { id: 'option_1', title: 'Crear Médico/Farmacia' } },
-      { type: 'reply', reply: { id: 'option_2', title: 'Informacion 💡' } },
-      { type: 'reply', reply: { id: 'option_3', title: 'Hablar con Humano 🙋' } }
+      {
+        type: 'reply',
+        reply: {
+          id: 'option_1', 
+          title: 'Creacion' // 20 caracteres exactos
+        }
+      },
+      {
+        type: 'reply',
+        reply: {
+          id: 'option_2',
+          title: 'Información 💡' // 14 caracteres
+        }
+      },
+      {
+        type: 'reply',
+        reply: {
+          id: 'option_3',
+          title: 'Hablar con Humano 🙋' // 19 caracteres
+        }
+      }
     ];
+
     await whatsappService.sendInteractiveButtons(to, "¿En qué te puedo ayudar?", menuButtons);
   }
 
