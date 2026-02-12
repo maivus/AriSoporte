@@ -24,7 +24,7 @@ class MessageHandler {
         await this.sendWelcomeMessage(from, messageId, senderName);
         await this.sendWelcomeMenu(from);
       } else if(inComingMessage === 'media') {
-        await this.sendMedia(message.from);
+        await this.sendMedia(message.from, messageId);
       } else {
         const response = `¡Hola! 👋 Soy Ari, tu asistente virtual. Por el momento no reconocí tu mensaje. Para ver mis opciones y ayudarte mejor, por favor inicia la conversación con un saludo (por ejemplo: Hola Ari, Buenas Ari, Buenos días Ari, Buenas tardes Ari, Buenas noches Ari).`;
         await whatsappService.sendMessage(from, response, messageId);
