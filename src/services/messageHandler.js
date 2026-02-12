@@ -106,7 +106,7 @@ class MessageHandler {
     await whatsappService.sendMessage(to, responseText, messageId);
   }
 
-  async sendMedia(to) {
+  async sendMedia(to, messageId) {
     const mediaUrl = 'https://s3.amazonaws.com/gndx.dev/medpet-imagen.png';
     const caption = 'Esto es una Imagen!';
     const type = 'image';
