@@ -23,19 +23,12 @@ class MessageHandler {
       if (this.isGreeting(inComingMessage)) {
         await this.sendWelcomeMessage(from, messageId, senderName);
         await this.sendWelcomeMenu(from);
-       // 2. Especialista (Usamos includes para ser más flexibles)
-      // Detecta: "necesito especialista", "ver especialistas", "especialista"
-      } else if (inComingMessage.includes('especialista')) {
-        console.log('--> Entró en condición: Especialista'); // Log para confirmar
+
+      } else if (inComingMessage.includes('imagen')) {
+        console.log('--> Entró en condición: Imagen');
         await this.sendMedia(from, messageId);
-      
-      // 3. Mami
-      } else if (inComingMessage.includes('mami')) {
-        console.log('--> Entró en condición: Mami'); // Log para confirmar
-        await this.sendMedia2(from, messageId);
-      
-      // 4. No reconocido
-      }else {
+
+      } else {
         const response = `¡Hola! 👋 Soy Ari, tu asistente virtual. Por el momento no reconocí tu mensaje. Para ver mis opciones y ayudarte mejor, por favor inicia la conversación con un saludo (por ejemplo: Hola Ari, Buenas Ari, Buenos días Ari, Buenas tardes Ari, Buenas noches Ari).`;
         await whatsappService.sendMessage(from, response, messageId);
       }
@@ -118,20 +111,12 @@ class MessageHandler {
 
   async sendMedia(to, messageId) {
     console.log("--> INTENTANDO EJECUTAR sendMedia"); // 1. ¿Entra aquí?
-    const mediaUrl = 'https://aropanel.info/imagenes-whatsapp/ARI_2.png';
-    //const mediaUrl = 'https://s3.amazonaws.com/gndx.dev/medpet-imagen.png';
-    const caption = 'Si quieres ver mas, solo pidelo por esos deditos escribiendo: mami';
+    const mediaUrl = 'https://s3.amazonaws.com/gndx.dev/medpet-imagen.png';
+    const caption = 'Esto es una imagen';
     const type = 'image';
     await whatsappService.sendMediaMessage(to, type, mediaUrl, caption, messageId);
   }
 
-  async sendMedia2(to, messageId) {
-    const mediaUrl = 'https://aropanel.info/imagenes-whatsapp/ari.png';
-    //const mediaUrl = 'https://s3.amazonaws.com/gndx.dev/medpet-imagen.png';
-    const caption = 'Toda para ti!';
-    const type = 'image';
-    await whatsappService.sendMediaMessage(to, type, mediaUrl, caption, messageId);
-  }
 }
 
 module.exports = new MessageHandler();
