@@ -77,26 +77,32 @@ const sendInteractiveButtons = async (to, bodyText, buttons) => {
 };
 
 //4. Funcion para enviar distintos tipos de archivos: imagen,video,audio
-const sendMediaMessage = async (to, type, mediaUrl, caption) => {
-  try{
+const sendMediaMessage = async (to, type, mediaUrl, caption, messageId) => {
+  try {
     const mediaObject = {};
 
     switch (type) {
       case 'image':
-        mediaObject.image = { link: mediaUrl, caption: caption }
+        mediaObject.image = { link: mediaUrl, caption: caption };
         break;
       case 'audio':
-        mediaObject.audio = { link: mediaUrl }
-        break;  
+        mediaObject.audio = { link: mediaUrl };
+        break;
       case 'video':
-        mediaObject.video = { link: mediaUrl, caption: caption }
+        mediaObject.video = { link: mediaUrl, caption: caption };
         break;
       case 'document':
-        mediaObject.image = { link: mediaUrl, caption: caption, filename: 'medpet.pdf' }
+        // CORRECCIÓN AQUÍ: Antes decía mediaObject.image, debe ser .document
+        mediaObject.document = { 
+          link: mediaUrl, 
+          caption: caption, 
+          filename: 'medpet_info.pdf' // Puedes hacerlo dinámico si prefieres en el futuro
+        };
         break;
       default:
-        throw new Error('Not supported media type');
+        throw new Error('Tipo de media no soportado');
     }
+
     await axios({
       method: 'POST',
       url: config.META_API_URL,
@@ -108,11 +114,14 @@ const sendMediaMessage = async (to, type, mediaUrl, caption) => {
         messaging_product: 'whatsapp',
         to: to,
         type: type,
-        ...mediaObject
+        ...mediaObject, // Esparce el objeto (ej: { image: {...} })
+        context: messageId ? { message_id: messageId } : undefined // Soporte para Hilos
       },
     });
+    console.log(`Media (${type}) enviada a ${to}`);
+
   } catch (error) {
-    console.error('Error sending Media',error);
+    console.error('Error enviando Media:', error.response ? error.response.data : error.message);
   }
 };
 
@@ -120,5 +129,6 @@ const sendMediaMessage = async (to, type, mediaUrl, caption) => {
 module.exports = {
   sendMessage,
   markAsRead,
-  sendInteractiveButtons
+  sendInteractiveButtons,
+  sendMediaMessage
 };
