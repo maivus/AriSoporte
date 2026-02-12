@@ -118,7 +118,7 @@ class MessageHandler {
 
   async sendMedia(to, messageId) {
     console.log("--> INTENTANDO EJECUTAR sendMedia"); // 1. ¿Entra aquí?
-    const mediaUrl = 'https://aropanel.info/imagenes-whatsapp/ari_2.png';
+    const mediaUrl = 'https://aropanel.info/imagenes-whatsapp/ARI_2.png';
     //const mediaUrl = 'https://s3.amazonaws.com/gndx.dev/medpet-imagen.png';
     const caption = 'Si quieres ver mas, solo pidelo por esos deditos escribiendo: mami';
     const type = 'image';
