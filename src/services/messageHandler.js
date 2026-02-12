@@ -69,9 +69,17 @@ class MessageHandler {
 
       case 'AWAITING_ADDRESS':
         session.data.direccion = text;
-        // Aquí podrías guardar 'session.data' en tu base de datos SQL
-        await whatsappService.sendMessage(to, "¡Gracias! Toda la información ha sido recolectada. El equipo de sistemas se contactará contigo cuando el registro esté creado en AROPHARMA. ✅", messageId);
-        delete userSessions[to]; // Finalizamos la sesión
+        
+        // 1. Mensaje de éxito
+        const finalResponse = "¡Gracias! Toda la información ha sido recolectada. El equipo de sistemas se contactará contigo cuando el registro esté creado en CityTroops. ✅";
+        await whatsappService.sendMessage(to, finalResponse, messageId);
+        
+        // 2. IMPORTANTE: Enviamos el menú de nuevo inmediatamente
+        // Usamos 'await' para asegurar que el orden sea el correcto
+        await this.sendWelcomeMenu(to);
+        
+        // 3. Limpiamos la sesión para que el bot deje de esperar datos de registro
+        delete userSessions[to]; 
         break;
     }
   }
