@@ -23,6 +23,8 @@ class MessageHandler {
       if (this.isGreeting(inComingMessage)) {
         await this.sendWelcomeMessage(from, messageId, senderName);
         await this.sendWelcomeMenu(from);
+      } else if(inComingMessage === 'media') {
+        await this.sendMedia(message.from);
       } else {
         const response = `¡Hola! 👋 Soy Ari, tu asistente virtual. Por el momento no reconocí tu mensaje. Para ver mis opciones y ayudarte mejor, por favor inicia la conversación con un saludo (por ejemplo: Hola Ari, Buenas Ari, Buenos días Ari, Buenas tardes Ari, Buenas noches Ari).`;
         await whatsappService.sendMessage(from, response, messageId);
@@ -102,6 +104,13 @@ class MessageHandler {
     }
 
     await whatsappService.sendMessage(to, responseText, messageId);
+  }
+
+  async sendMedia(to) {
+    const mediaUrl = 'https://s3.amazonaws.com/gndx.dev/medpet-imagen.png';
+    const caption = 'Esto es una Imagen!';
+    const type = 'image';
+    await whatsappService.sendMediaMessage(to, type, mediaUrl, caption, messageId);
   }
 }
 

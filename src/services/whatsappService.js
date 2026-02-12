@@ -76,6 +76,47 @@ const sendInteractiveButtons = async (to, bodyText, buttons) => {
   }
 };
 
+//4. Funcion para enviar distintos tipos de archivos: imagen,video,audio
+const sendMediaMessage = async (to, type, mediaUrl, caption) => {
+  try{
+    const mediaObject = {};
+
+    switch (type) {
+      case 'image':
+        mediaObject.image = { link: mediaUrl, caption: caption }
+        break;
+      case 'audio':
+        mediaObject.audio = { link: mediaUrl }
+        break;  
+      case 'video':
+        mediaObject.video = { link: mediaUrl, caption: caption }
+        break;
+      case 'document':
+        mediaObject.image = { link: mediaUrl, caption: caption, filename: 'medpet.pdf' }
+        break;
+      default:
+        throw new Error('Not supported media type');
+    }
+    await axios({
+      method: 'POST',
+      url: config.META_API_URL,
+      headers: {
+        'Authorization': `Bearer ${config.WHATSAPP_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      data: {
+        messaging_product: 'whatsapp',
+        to: to,
+        type: type,
+        ...mediaObject
+      },
+    });
+  } catch (error) {
+    console.error('Error sending Media',error);
+  }
+};
+
+
 module.exports = {
   sendMessage,
   markAsRead,
