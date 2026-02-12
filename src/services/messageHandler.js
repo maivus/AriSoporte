@@ -23,7 +23,7 @@ class MessageHandler {
       if (this.isGreeting(inComingMessage)) {
         await this.sendWelcomeMessage(from, messageId, senderName);
         await this.sendWelcomeMenu(from);
-      } else if(inComingMessage === 'amor') {
+      } else if(inComingMessage === 'especialista') {
         await this.sendMedia(message.from, messageId);
       } else if(inComingMessage === 'mami') {
         await this.sendMedia2(message.from, messageId);
