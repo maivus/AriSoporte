@@ -128,7 +128,7 @@ class MessageHandler {
         type: 'reply',
         reply: {
           id: 'option_1', 
-          title: 'Creacion' // 20 caracteres exactos
+          title: 'Creacion' //  caracteres exactos
         }
       },
       {
