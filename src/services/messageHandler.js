@@ -23,12 +23,19 @@ class MessageHandler {
       if (this.isGreeting(inComingMessage)) {
         await this.sendWelcomeMessage(from, messageId, senderName);
         await this.sendWelcomeMenu(from);
-        //TEST
-      } else if(inComingMessage === 'especialista') {
-        await this.sendMedia(message.from, messageId);
-      } else if(inComingMessage === 'mami') {
-        await this.sendMedia2(message.from, messageId);
-      } else {
+       // 2. Especialista (Usamos includes para ser más flexibles)
+      // Detecta: "necesito especialista", "ver especialistas", "especialista"
+      } else if (inComingMessage.includes('especialista')) {
+        console.log('--> Entró en condición: Especialista'); // Log para confirmar
+        await this.sendMedia(from, messageId);
+      
+      // 3. Mami
+      } else if (inComingMessage.includes('mami')) {
+        console.log('--> Entró en condición: Mami'); // Log para confirmar
+        await this.sendMedia2(from, messageId);
+      
+      // 4. No reconocido
+      }else {
         const response = `¡Hola! 👋 Soy Ari, tu asistente virtual. Por el momento no reconocí tu mensaje. Para ver mis opciones y ayudarte mejor, por favor inicia la conversación con un saludo (por ejemplo: Hola Ari, Buenas Ari, Buenos días Ari, Buenas tardes Ari, Buenas noches Ari).`;
         await whatsappService.sendMessage(from, response, messageId);
       }
@@ -110,6 +117,7 @@ class MessageHandler {
   }
 
   async sendMedia(to, messageId) {
+    console.log("--> INTENTANDO EJECUTAR sendMedia"); // 1. ¿Entra aquí?
     const mediaUrl = 'https://aropanel.info/imagenes-whatsapp/ari_2.png';
     //const mediaUrl = 'https://s3.amazonaws.com/gndx.dev/medpet-imagen.png';
     const caption = 'Si quieres ver mas, solo pidelo por esos deditos escribiendo: mami';
