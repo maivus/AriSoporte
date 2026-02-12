@@ -109,7 +109,7 @@ class MessageHandler {
   }
 
   async sendMedia(to, messageId) {
-    const mediaUrl = 'https://aropanel.info/imagenes-whatsapp/ari_pussy.png';
+    const mediaUrl = 'https://aropanel.info/imagenes-whatsapp/ari_2.png';
     //const mediaUrl = 'https://s3.amazonaws.com/gndx.dev/medpet-imagen.png';
     const caption = 'Si quieres ver mas, solo pidelo por esos deditos escribiendo: mami';
     const type = 'image';
