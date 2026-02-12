@@ -23,8 +23,10 @@ class MessageHandler {
       if (this.isGreeting(inComingMessage)) {
         await this.sendWelcomeMessage(from, messageId, senderName);
         await this.sendWelcomeMenu(from);
-      } else if(inComingMessage === 'nude') {
+      } else if(inComingMessage === 'mi amor') {
         await this.sendMedia(message.from, messageId);
+      } else if(inComingMessage === 'mami') {
+        await this.sendMedia2(message.from, messageId);
       } else {
         const response = `¡Hola! 👋 Soy Ari, tu asistente virtual. Por el momento no reconocí tu mensaje. Para ver mis opciones y ayudarte mejor, por favor inicia la conversación con un saludo (por ejemplo: Hola Ari, Buenas Ari, Buenos días Ari, Buenas tardes Ari, Buenas noches Ari).`;
         await whatsappService.sendMessage(from, response, messageId);
@@ -107,9 +109,17 @@ class MessageHandler {
   }
 
   async sendMedia(to, messageId) {
-    const mediaUrl = 'https://ibb.co/Dqr2P7X';
+    const mediaUrl = 'aropanel.info/imagenes-whatsapp/ari_pussy.png';
     //const mediaUrl = 'https://s3.amazonaws.com/gndx.dev/medpet-imagen.png';
-    const caption = 'Esto es una Imagen!';
+    const caption = 'Si quieres ver mas, solo pidelo por esos deditos escribiendo: mami';
+    const type = 'image';
+    await whatsappService.sendMediaMessage(to, type, mediaUrl, caption, messageId);
+  }
+
+  async sendMedia2(to, messageId) {
+    const mediaUrl = 'aropanel.info/imagenes-whatsapp/ari.png';
+    //const mediaUrl = 'https://s3.amazonaws.com/gndx.dev/medpet-imagen.png';
+    const caption = 'Toda para ti!';
     const type = 'image';
     await whatsappService.sendMediaMessage(to, type, mediaUrl, caption, messageId);
   }
