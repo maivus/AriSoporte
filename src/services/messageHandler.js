@@ -19,7 +19,7 @@ class MessageHandler {
         await this.handleRegistrationFlow(from, message.text.body, messageId);
         return; 
     }
-
+    //PRUEBA CON KRAKEN
     // CASO A: Es un mensaje de TEXTO (Saludo o comandos)
     if (message?.type === 'text') {
       const messageBody = message.text.body;
